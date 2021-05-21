@@ -6,7 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
-// 0.1.0 2021/05/19 β版
+// 0.1.0 2021/05/20 β版
 // ----------------------------------------------------------------------------
 // [GitHub] : https://github.com/izumotoWorks/linden_scripts
 //=============================================================================
@@ -34,6 +34,7 @@ integer change_type = -1;
 // 定数定義　
 //------------------------------------------------------------
 integer LISTEN_CHANNEL = -114931; // 通信するチャネル
+integer IS_LINKS = -1; // リンクプリムかの条件
 float C_VISIBLE = 1.000000; // 不透明度
 float C_HIDE = 0.000000; // 透明度
 
@@ -67,7 +68,11 @@ default
     listen( integer channel, string name, key id, string message )
     {
         if(message == (string)C_VISIBLE || message == (string)C_HIDE) {
-          llSetAlpha((float)message, ALL_SIDES); // 単体オブジェクトの透明度を変更する
+          if(change_type != IS_LINKS) {
+            llSetAlpha((float)message, ALL_SIDES); // 単体オブジェクトの透明度を変更する
+          } else {
+            llSetLinkAlpha(-1, (float)message, ALL_SIDES); // リンクしてる全てのオブジェクトの透明度を変更する
+          }
         }
     }
 }

@@ -1,12 +1,13 @@
 //=============================================================================
-// HUD de Alpha変更　Toggle式 トランスミッター用スクリプト v0.1.0
+// HUD de Alpha変更　Toggle式 トランスミッター用スクリプト v0.1.1
 // ----------------------------------------------------------------------------
 // (C)2021 Enhanced System
 // This software is released under the MIT License.
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
-// 0.1.0 2021/05/19 β版
+// 0.1.1 2021/05/20 範囲判定関数化＆２つの範囲を作成
+// 0.1.0 2021/05/20 β版
 // ----------------------------------------------------------------------------
 // [GitHub] : https://github.com/izumotoWorks/linden_scripts
 //=============================================================================
@@ -17,8 +18,11 @@
 float C_VISIBLE = 1.000000; // 不透明度
 float C_HIDE = 0.000000; // 透明度
 
-vector LEFT_TOP_RANGE = <0.00000, 1.00000, 0.00000>; // 左上座標
-vector RIGHT_BOTTOM_RANGE = <0.64162, 0.30588, 0.00000>; // 右上座標
+vector LEFT_TOP_RANGE_1 = <0.00000, 1.00000, 0.00000>; // 左上座標
+vector RIGHT_BOTTOM_RANGE_1 = <0.64162, 0.30588, 0.00000>; // 右上座標
+// 追加座標
+vector LEFT_TOP_RANGE_2 = <0.00000, 1.00000, 0.00000>; // 左上座標
+vector RIGHT_BOTTOM_RANGE_2 = <0.64162, 0.30588, 0.00000>; // 右上座標
 
 // 送信するチャンネル
 integer SEND_CHANNEL  = -114931; // 値を変更する際はレシーバー側も変更する必要あり
@@ -54,6 +58,23 @@ float nl_toggle_alpha() {
     }
 }
 
+// 矩形の範囲内かどうか
+integer nl_range_check(vector lt, vector rb, vector t) {
+    // 座標が範囲内か調べる_1
+    if(
+        t.x >= lt.x　&&
+        t.x <= rb.x &&
+        t.y <= lt &&
+        t.y >= rb.y
+    ) {
+        // 範囲内
+        return 1;
+    } else {
+        // 範囲外
+        return -1;
+    }
+}
+
 
 // ----------------------------------------------------------------------------
 // メイン関数
@@ -67,16 +88,11 @@ default
         // 座標を取得
         touch_pos = llDetectedTouchST(0);
 
-        // 座標が範囲内か調べる
-        if(
-            touch_pos.x >= LEFT_TOP_RANGE.x　&&
-            touch_pos.x <= RIGHT_BOTTOM_RANGE.x &&
-            touch_pos.y <= LEFT_TOP_RANGE.y &&
-            touch_pos.y >= RIGHT_BOTTOM_RANGE.y
-        ) {
-            inRange = 1;
-        } else {
-            inRange = -1;
+        // 座標が範囲内か調べる_1
+        inRange = nl_range_check(LEFT_TOP_RANGE_1, RIGHT_BOTTOM_RANGE_1, touch_pos);
+        // 1が範囲外だった場合もう一つの矩形を調べる
+        if(inRange != 1) {
+            inRange = nl_range_check(LEFT_TOP_RANGE_2, RIGHT_BOTTOM_RANGE_2, touch_pos);
         }
 
         // 範囲であれば処理する
